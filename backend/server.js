@@ -6,6 +6,10 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const { connect } = require('./config/db');
 
+// ✅ Import routes
+const publicRequestRoutes = require('./routes/publicRequests');
+const path = require('path');
+
 const app = express();
 
 app.use(helmet());
@@ -14,9 +18,17 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
+// ✅ Health Check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// ✅ Mount routes
+app.use('/api/public-requests', publicRequestRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// mount auth routes:
+app.use('/api/auth', require('./routes/auth'));
 
 const PORT = process.env.PORT || 4000;
 
