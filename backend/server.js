@@ -9,7 +9,7 @@ const { connect } = require('./config/db');
 // ✅ Import routes
 const publicRequestRoutes = require('./routes/publicRequests');
 const path = require('path');
-
+const { swaggerUi, specs } = require('./swagger');
 const app = express();
 
 app.use(helmet());
@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 // ✅ Health Check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -2,7 +2,16 @@ const express = require('express');
 const router = express.Router();
 const PublicRequest = require('../models/PublicRequest');
 
-// GET all OPEN requests (for landing page)
+/**
+ * @swagger
+ * /api/public-requests:
+ *   get:
+ *     summary: Get all public requests
+ *     tags: [Public Requests]
+ *     responses:
+ *       200:
+ *         description: List of public requests
+ */
 router.get('/', async (req, res) => {
   try {
     const requests = await PublicRequest.find({ status: 'OPEN' }).sort({ createdAt: -1 });
@@ -12,7 +21,27 @@ router.get('/', async (req, res) => {
   }
 });
 
-// (Optional) POST new request — used only by procurement team later
+/**
+ * @swagger
+ * /api/public-requests:
+ *   post:
+ *     summary: Create a new public request
+ *     tags: [Public Requests]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Public request created
+ */
 router.post('/', async (req, res) => {
   try {
     const request = new PublicRequest(req.body);

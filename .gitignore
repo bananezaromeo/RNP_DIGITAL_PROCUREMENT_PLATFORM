@@ -16,3 +16,6 @@ npm-debug.log*
 
 # Build outputs (React)
 frontend/build/
+
+# Ignore MongoDB local data
+mongo-data/
