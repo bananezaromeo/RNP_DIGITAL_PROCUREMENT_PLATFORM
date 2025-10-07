@@ -1,34 +1,63 @@
-// backend/models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
-  supplierType: { type: String, enum: ['individual', 'cooperative'], required: true },
-  fullName: { type: String }, // required if individual
-  cooperativeName: { type: String }, // required if cooperative
-  companyName: { type: String, default: '' },
+  // Common fields
+  fullName: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   phone: { type: String, default: '' },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['supplier','district','region','hq','station'], default: 'supplier' },
-  status: { type: String, enum: ['pending','approved','rejected'], default: 'pending' },
+
+  // Role: supplier or one of admin levels
+  role: {
+    type: String,
+    enum: ['supplier', 'district', 'region', 'hq', 'station'],
+    required: true,
+    default: 'supplier'
+  },
+
+  // Supplier specific fields
+  supplierType: {
+    type: String,
+    enum: ['individual', 'cooperative'],
+    required: function () {
+      return this.role === 'supplier';
+    },
+  },
+  cooperativeName: { type: String },
+  companyName: { type: String, default: '' },
+
+  // Admin-specific location hierarchy
   province: { type: String },
   district: { type: String },
   sector: { type: String },
+
+  // Account status
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: function () {
+      // HQ admins auto-approved, others pending
+      return this.role === 'hq' ? 'approved' : 'pending';
+    },
+  },
+
+  // Supplier uploads
   uploads: {
-    national_id: { type: String },         // path to uploaded national id file
-    business_license: { type: String },    // path to uploaded rdb/business certificate
+    national_id: { type: String },
+    business_license: { type: String },
   },
 }, { timestamps: true });
 
-// virtual for setting password
+// Virtual for setting password
 UserSchema.virtual('password')
-  .set(function(password) {
+  .set(function (password) {
     this._password = password;
     this.passwordHash = bcrypt.hashSync(password, 10);
   });
 
-UserSchema.methods.comparePassword = function(password) {
+// Compare password method
+UserSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.passwordHash);
 };
 
