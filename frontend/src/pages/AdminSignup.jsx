@@ -32,10 +32,48 @@ export default function AdminSignup({ role }) {
   };
 
   // Placeholder for submit logic
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage('Submitted (backend not yet implemented)');
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage('Submitting...');
+
+  const payload = {
+    fullName: form.fullName,
+    email: form.email,
+    password: form.policeNumber, // if you are using policeNumber as temporary password
+    role: role,
+    province: form.region || '',
+    district: form.district || '',
+    region: form.region || ''
   };
+
+  try {
+    const res = await fetch('http://localhost:4000/api/auth/register-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setMessage(data.message);
+      setForm({
+        fullName: '',
+        email: '',
+        policeNumber: '',
+        phone: '',
+        region: '',
+        district: ''
+      });
+    } else {
+      setMessage(`Error: ${data.message}`);
+    }
+  } catch (err) {
+    console.error(err);
+    setMessage('Network error. Please try again.');
+  }
+};
+
 
   // Determine which fields to show based on role
   const showRegion = role === 'district' || role === 'region';

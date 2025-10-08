@@ -194,14 +194,36 @@ router.post('/login', async (req, res) => {
  */
 /**
  * @swagger
- * /api/admin/pending-approvals:
+ * /api/auth/admin/pending-approvals:
  *   get:
  *     summary: Get all pending users (Suppliers + Admins)
  *     tags: [ProcurementHQ]
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200: { description: List of pending users }
+ *       200:
+ *         description: List of pending users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   first_name:
+ *                     type: string
+ *                   last_name:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   phone_number:
+ *                     type: string
+ *                   company_name:
+ *                     type: string
+ *                   status:
+ *                     type: string
  */
 router.get('/admin/pending-approvals', verifyHQ, async (req, res) => {
   try {
@@ -215,9 +237,9 @@ router.get('/admin/pending-approvals', verifyHQ, async (req, res) => {
 
 /**
  * @swagger
- * /api/admin/approve-user/{id}:
- *   post:
- *     summary: Approve user and send OTP + magic link
+ * /api/auth/admin/approve-user/{id}:
+ *   put:
+ *     summary: Approve a user by ID (Procurement HQ only)
  *     tags: [ProcurementHQ]
  *     security:
  *       - bearerAuth: []
@@ -225,11 +247,14 @@ router.get('/admin/pending-approvals', verifyHQ, async (req, res) => {
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
+ *         description: ID of the user to approve
  *     responses:
- *       200: { description: User approved and OTP + link sent via email }
- *       400: { description: User already processed }
- *       404: { description: User not found }
+ *       200:
+ *         description: User approved successfully
+ *       404:
+ *         description: User not found
  */
 router.post('/admin/approve-user/:id', verifyHQ, async (req, res) => {
   try {
@@ -268,9 +293,9 @@ router.post('/admin/approve-user/:id', verifyHQ, async (req, res) => {
 
 /**
  * @swagger
- * /api/admin/reject-user/{id}:
- *   post:
- *     summary: Reject a user registration
+ * /api/auth/admin/reject-user/{id}:
+ *   put:
+ *     summary: Reject a user by ID (Procurement HQ only)
  *     tags: [ProcurementHQ]
  *     security:
  *       - bearerAuth: []
@@ -278,10 +303,14 @@ router.post('/admin/approve-user/:id', verifyHQ, async (req, res) => {
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
+ *         description: ID of the user to reject
  *     responses:
- *       200: { description: User rejected successfully }
- *       404: { description: User not found }
+ *       200:
+ *         description: User rejected successfully
+ *       404:
+ *         description: User not found
  */
 router.post('/admin/reject-user/:id', verifyHQ, async (req, res) => {
   try {

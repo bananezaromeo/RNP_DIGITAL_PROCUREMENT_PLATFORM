@@ -10,7 +10,9 @@ exports.verifyHQ = async (req, res, next) => {
 
     const token = header.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+
+    // ✅ FIXED: Use decoded.id (not decoded.userId)
+    const user = await User.findById(decoded.id);
 
     if (!user || user.role !== 'hq')
       return res.status(403).json({ message: 'Access denied: HQ only' });
