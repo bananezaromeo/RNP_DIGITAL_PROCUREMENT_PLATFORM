@@ -1,12 +1,13 @@
-
-
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import PublicRequestsList from './components/PublicRequestsList';
-import SupplierRegister from './pages/SupplierRegister'; // ✅ make sure this path is correct
+import SupplierRegister from './pages/SupplierRegister';
 import Login from './pages/Login';
 import InternalLogin from './pages/InternalLogin';
 import AdminSignup from './pages/AdminSignup';
+import RequestForm from "./components/RequestForm"; // ✅ Import your new page
+import StationDashboard from "./pages/StationDashboard";
+import DistrictDashboard from "./pages/DistrictDashboard";
 import Footer from './components/Footer';
 
 // Wrapper to extract ?role param for admin signup
@@ -37,7 +38,6 @@ function Header() {
   useEffect(() => {
     const u = localStorage.getItem('user');
     setUser(u ? JSON.parse(u) : null);
-    // Listen for login/logout in other tabs
     const onStorage = () => {
       const u2 = localStorage.getItem('user');
       setUser(u2 ? JSON.parse(u2) : null);
@@ -45,6 +45,7 @@ function Header() {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
+
   const handleRoleSelect = (e) => {
     if (e.target.value) {
       navigate('/internal-login?role=' + e.target.value);
@@ -56,10 +57,10 @@ function Header() {
     setUser(null);
     navigate('/');
   };
+
   return (
     <header className="bg-white border-bottom shadow-sm py-2 mb-3">
       <div className="container d-flex flex-wrap justify-content-between align-items-center">
-        {/* Left: Logo and nav links */}
         <div className="d-flex align-items-center gap-3">
           <span className="fw-bold text-primary" style={{fontSize: '1.3rem'}}>RNP-DPAMIS</span>
           <Link to="#about" className="nav-link px-2">About</Link>
@@ -71,15 +72,10 @@ function Header() {
             <option value="fr">FR</option>
           </select>
         </div>
-        {/* Right: Auth links/profile */}
         <div className="d-flex align-items-center gap-2">
           {!user && <>
-            <Link to="/supplier-register" className="btn btn-outline-primary btn-sm me-1">
-              Register to Bid
-            </Link>
-            <Link to="/login?role=supplier" className="btn btn-primary btn-sm me-3">
-              Supplier Sign In
-            </Link>
+            <Link to="/supplier-register" className="btn btn-outline-primary btn-sm me-1">Register to Bid</Link>
+            <Link to="/login?role=supplier" className="btn btn-primary btn-sm me-3">Supplier Sign In</Link>
             <select className="form-select form-select-sm w-auto" style={{minWidth: 140}} defaultValue="" onChange={handleRoleSelect}>
               <option value="" disabled>Administrations Logins</option>
               {roles.map(r => (
@@ -109,14 +105,18 @@ function App() {
       <Header />
       <main>
         <Routes>
-          {/* ✅ Home / Landing */}
+          {/* Home / Landing */}
           <Route path="/" element={<PublicRequestsList />} />
-          {/* ✅ Supplier Registration Page */}
+          {/* Supplier Registration */}
           <Route path="/supplier-register" element={<SupplierRegister />} />
-          {/* ✅ Login Pages */}
+          {/* Login Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/internal-login" element={<InternalLogin />} />
           <Route path="/admin-signup" element={<AdminSignupWrapper />} />
+          <Route path="/station-dashboard" element={<StationDashboard />} />
+          <Route path="/request-form" element={<RequestForm />} />
+          <Route path="/district-dashboard" element={<DistrictDashboard />} />
+
         </Routes>
       </main>
       <Footer />

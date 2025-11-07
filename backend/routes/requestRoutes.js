@@ -1,37 +1,60 @@
-const express = require("express");
-const {
-  verifyAuth,
-  verifyDistrictAdmin,
-  verifyHQ,
-} = require("../middleware/authMiddleware");
-
+const express = require('express');
 const {
   createRequest,
   getRequests,
-  getDistrictAggregatedRequests,
-  approveDistrictRequests,
-  getHQAggregatedRequests,
-  approveHQRequest,
-} = require("../controllers/requestController");
+  getRequestById,
+  updateRequest,
+  deleteRequest,
+  aggregateRequests
+} = require('../controllers/requestController');
+
+const { 
+  verifyAuth,
+  verifyStation,
+  verifySpecialUnit,
+  verifyDistrictAdmin,
+  verifyRegionAdmin,
+  verifyHQ
+} = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Create request (station, special unit, district, region)
-router.post("/create", verifyAuth, createRequest);
+/**
+ * ✅ Create Request
+ * Allowed: Station + Special Unit
+ */
+router.post('/', verifyAuth, (req, res, next) => {
+  if (req.user.role !== 'station' && req.user.role !== 'specialUnit') {
+    return res.status(403).json({ message: 'Access denied: Only stations or special units can create requests' });
+  }
+  next();
+}, createRequest);
 
-// Get own requests
-router.get("/my-requests", verifyAuth, getRequests);
+/**
+ * ✅ Get Requests (Dashboard)
+ * Allowed: Any authenticated user
+ */
+router.get('/', verifyAuth, getRequests);
 
-// District Admin: aggregated requests from stations/special units
-router.get("/district/aggregated", verifyDistrictAdmin, getDistrictAggregatedRequests);
+/**
+ * ✅ Aggregate Requests (District → Region → HQ)
+ * Allowed: District Admin only
+ */
+router.post('/aggregate', verifyDistrictAdmin, aggregateRequests);
 
-// District Admin: approve selected requests and send aggregation to HQ
-router.post("/district/approve", verifyDistrictAdmin, approveDistrictRequests);
+/**
+ * ✅ Get Single Request
+ */
+router.get('/:id', verifyAuth, getRequestById);
 
-// HQ: view all aggregated requests
-router.get("/hq/aggregated", verifyHQ, getHQAggregatedRequests);
+/**
+ * ✅ Update Request (status, remarks, quantities)
+ */
+router.patch('/:id', verifyAuth, updateRequest);
 
-// HQ: approve request
-router.patch("/hq/approve/:id", verifyHQ, approveHQRequest);
+/**
+ * ✅ Delete Request
+ */
+router.delete('/:id', verifyAuth, deleteRequest);
 
 module.exports = router;
