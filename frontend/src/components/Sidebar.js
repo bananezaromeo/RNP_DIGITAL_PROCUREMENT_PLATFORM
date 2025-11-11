@@ -16,7 +16,7 @@ const Sidebar = ({ active, setActive, role = "station" }) => {
 
   // Menu items depending on role
   const baseMenu = [
-    { label: "Overviewww", icon: <FaHome /> },
+    { label: "Overview", icon: <FaHome /> },
     { label: "Submit Request", icon: <FaPaperPlane /> },
     { label: "My Requests", icon: <FaListAlt /> },
     { label: "Chat", icon: <FaComments /> },
